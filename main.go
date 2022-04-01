@@ -52,6 +52,23 @@ func createMovie(w http.ResponseWriter, r *http.Request) {
 	movies = append(movies, movie)
 }
 
+func updateMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	var movie Movie
+	_ = json.NewDecoder(r.Body).Decode(&movie)
+
+	for index, item := range movies {
+		if item.ID == params["id"] {
+			//	Deleting the movie
+			movie.ID = item.ID
+			movies = append(movies[:index], movies[:index+1]...)
+			movies = append(movies, movie)
+			return
+		}
+	}
+}
+
 func deleteMovie(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
@@ -74,7 +91,7 @@ func main() {
 	r.HandleFunc("/api/movies", getMovies).Methods("GET")
 	r.HandleFunc("/api/movies/{id}", getMovie).Methods("GET")
 	r.HandleFunc("/api/movies", createMovie).Methods("POST")
-	// r.HandleFunc("/api/movies/{id}", updateMovie).Methods("PUT")
+	r.HandleFunc("/api/movies/{id}", updateMovie).Methods("PUT")
 	r.HandleFunc("/api/movies/{id}", deleteMovie).Methods("DELETE")
 
 	fmt.Printf("Starting server at port %d\n", PORT)
