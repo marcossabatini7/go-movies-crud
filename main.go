@@ -28,6 +28,18 @@ func getMovies(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(movies)
 }
 
+func deleteMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+
+	for index, item := range movies {
+		if item.ID == params["id"] {
+			movies = append(movies[:index], movies[:index+1]...)
+			break
+		}
+	}
+}
+
 func main() {
 	PORT := 8000
 	r := mux.NewRouter()
@@ -39,7 +51,7 @@ func main() {
 	// r.HandleFunc("/api/movies/{id", getMovie).Methods("GET")
 	// r.HandleFunc("/api/movies", createMovie).Methods("POST")
 	// r.HandleFunc("/api/movies/{id}", updateMovie).Methods("PUT")
-	// r.HandleFunc("/api/movies/{id}", deleteMovie).Methods("DELETE")
+	r.HandleFunc("/api/movies/{id}", deleteMovie).Methods("DELETE")
 
 	fmt.Printf("Starting server at port %d\n", PORT)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", PORT), r))
